@@ -165,6 +165,20 @@ class FunctionBlock extends Block {
         }
     }
 
+    /**
+     * @param \ReflectionFunctionAbstract $reflection
+     */
+    public function setReturnTypeFromReflection(\ReflectionFunctionAbstract $reflection) {
+        if ($reflection->hasReturnType()) {
+            $reflectionReturnType = $reflection->getReturnType();
+            $returnType = $reflectionReturnType->getName();
+            if ($reflectionReturnType->allowsNull()) {
+                $returnType = '?' . $returnType;
+            }
+            $this->setReturnType($returnType);
+        }
+    }
+
     public function dump() {
         return $this->_dumpLine(
             $this->_dumpDocBlock(),
@@ -193,6 +207,9 @@ class FunctionBlock extends Block {
         $content .= '(';
         $content .= implode(', ', $this->_parameters);
         $content .= ')';
+        if ($this->_returnType) {
+            $content .= ': ' . $this->_name;
+        }
         return $content;
     }
 
@@ -214,6 +231,7 @@ class FunctionBlock extends Block {
         $this->setBodyFromReflection($reflection);
         $this->setParametersFromReflection($reflection);
         $this->setDocBlockFromReflection($reflection);
+        $this->setReturnTypeFromReflection($reflection);
     }
 
     /**
